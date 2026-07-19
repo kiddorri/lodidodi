@@ -51,10 +51,20 @@ export default function EcoTrackMap({ collectionPoints, route }: Props) {
   const truckPosition = route.points[route.points.length - 1];
   const truckIcon = circleIcon(STATUS_COLORS[route.status], "🚛", 32);
 
+  const allPositions: L.LatLngTuple[] = [
+    ...collectionPoints.map((p): L.LatLngTuple => [p.lat, p.lng]),
+    ...route.points.map((p): L.LatLngTuple => [p.lat, p.lng]),
+  ];
+  const bounds = L.latLngBounds(
+    allPositions.length > 0
+      ? allPositions
+      : [[DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng]],
+  );
+
   return (
     <MapContainer
-      center={[DEFAULT_LOCATION.lat, DEFAULT_LOCATION.lng]}
-      zoom={13}
+      bounds={bounds}
+      boundsOptions={{ padding: [32, 32], maxZoom: 15 }}
       scrollWheelZoom
       className="h-[500px] w-full rounded-xl"
     >
