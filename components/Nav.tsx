@@ -7,6 +7,7 @@ const links = [
   { href: "/ai-sort", label: "AI Sort" },
   { href: "/eco-track", label: "EcoTrack" },
   { href: "/analytics", label: "Analytics" },
+  { href: "/about", label: "О системе" },
 ];
 
 export default function Nav() {

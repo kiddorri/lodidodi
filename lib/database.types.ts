@@ -3,7 +3,11 @@
 
 export type UserRole = "operator" | "viewer";
 export type RouteStatus = "in_progress" | "at_sorting" | "recycled";
-export type CollectionPointType = "sorting" | "recycling" | "collection";
+export type CollectionPointType =
+  | "sorting"
+  | "recycling"
+  | "collection"
+  | "landfill";
 
 export interface Database {
   public: {

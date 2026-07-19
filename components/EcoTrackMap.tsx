@@ -13,18 +13,21 @@ const POINT_TYPE_COLORS: Record<string, string> = {
   collection: "#837534", // bistre
   sorting: "#DB918F", // peach
   recycling: "#4F5127", // codium
+  landfill: "#8E5E5D", // muted rust, derived from peach
 };
 
 const POINT_TYPE_EMOJI: Record<string, string> = {
   collection: "🗑️",
   sorting: "🏭",
   recycling: "♻️",
+  landfill: "⛰️",
 };
 
 const POINT_TYPE_LABELS: Record<string, string> = {
   collection: "Сбор",
   sorting: "Сортировка",
   recycling: "Переработка",
+  landfill: "Полигон",
 };
 
 function circleIcon(color: string, emoji: string, size: number) {

@@ -27,6 +27,12 @@ export default function Home() {
         >
           Analytics
         </Link>
+        <Link
+          href="/about"
+          className="rounded-lg bg-champagne px-5 py-3 font-medium text-codium hover:opacity-90"
+        >
+          О системе
+        </Link>
       </div>
     </div>
   );
