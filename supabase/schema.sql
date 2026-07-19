@@ -37,8 +37,15 @@ create table if not exists collection_points (
   name text not null,
   lat double precision not null,
   lng double precision not null,
-  type text check (type in ('sorting', 'recycling', 'collection'))
+  type text check (type in ('sorting', 'recycling', 'collection', 'landfill'))
 );
+
+-- Migration for projects created before 'landfill' was added: `create table
+-- if not exists` above is a no-op once the table already exists, so the
+-- check constraint has to be swapped explicitly.
+alter table collection_points drop constraint if exists collection_points_type_check;
+alter table collection_points add constraint collection_points_type_check
+  check (type in ('sorting', 'recycling', 'collection', 'landfill'));
 
 create table if not exists waste_items (
   id uuid primary key default gen_random_uuid(),
