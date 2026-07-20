@@ -5,7 +5,12 @@ import L from "leaflet";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import type { Database } from "@/lib/database.types";
 import { DEFAULT_LOCATION } from "@/lib/geo";
-import { STATUS_COLORS, STATUS_LABELS, type MockRoute } from "@/lib/mockRoutes";
+import {
+  STATUS_COLORS,
+  STATUS_LABELS,
+  truckPositionIndex,
+  type MockRoute,
+} from "@/lib/mockRoutes";
 
 type CollectionPoint = Database["public"]["Tables"]["collection_points"]["Row"];
 
@@ -48,7 +53,7 @@ interface Props {
 }
 
 export default function EcoTrackMap({ collectionPoints, route }: Props) {
-  const truckPosition = route.points[route.points.length - 1];
+  const truckPosition = route.points[truckPositionIndex(route)];
   const truckIcon = circleIcon(STATUS_COLORS[route.status], "🚛", 32);
 
   const allPositions: L.LatLngTuple[] = [

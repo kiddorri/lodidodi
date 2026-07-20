@@ -25,6 +25,22 @@ export const STATUS_COLORS: Record<RouteStatus, string> = {
   recycled: "#4F5127", // codium
 };
 
+// How far along the route the truck sits, as a fraction of the path, per
+// status. With real GPS the position is an actual coordinate; for the mock we
+// derive it from status so the marker is meaningful: just collected → near the
+// start, sorting → mid-route, recycled → arrived at the landfill.
+const STATUS_PROGRESS: Record<RouteStatus, number> = {
+  in_progress: 0.15,
+  at_sorting: 0.65,
+  recycled: 1,
+};
+
+export function truckPositionIndex(route: MockRoute): number {
+  const lastIndex = route.points.length - 1;
+  if (lastIndex <= 0) return 0;
+  return Math.round(STATUS_PROGRESS[route.status] * lastIndex);
+}
+
 // Mock path from the "Контейнерная площадка, ул. Достык" collection point
 // to the actual city landfill ("Полигон ТБО и МСК «ICM Recycling»") — the
 // real destination for a collection truck, not a sorting facility. Follows
