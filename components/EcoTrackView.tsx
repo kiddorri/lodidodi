@@ -66,7 +66,7 @@ export default function EcoTrackView({ collectionPoints, loadError }: Props) {
                     </div>
                     <div>
                       <span className="text-codium">Откуда:</span>{" "}
-                      {origin?.name ?? "—"}
+                      {origin?.name ?? r.originName}
                     </div>
                     <div>
                       <span className="text-codium">Забор:</span>{" "}
