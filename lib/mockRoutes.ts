@@ -10,6 +10,12 @@ export interface MockRoute {
   truckPlate: string;
   driverName: string;
   status: RouteStatus;
+  // Fixed collection_point ids from supabase/seed.sql — resolved to names via
+  // the collection_points loaded from Supabase.
+  originPointId: string;
+  destinationPointId: string;
+  cargoType: string;
+  startedAt: string; // ISO timestamp
   points: MockRoutePoint[];
 }
 
@@ -52,6 +58,10 @@ export const mockRoutes: MockRoute[] = [
     truckPlate: "911 ABC 07",
     driverName: "Ержан Сапаров",
     status: "in_progress",
+    originPointId: "11111111-1111-1111-1111-111111111106", // Контейнерная площадка, ул. Достык
+    destinationPointId: "11111111-1111-1111-1111-111111111101", // Полигон ТБО и МСК «ICM Recycling»
+    cargoType: "Смешанные ТБО",
+    startedAt: "2026-07-20T08:15:00+05:00",
     points: [
       { lat: 51.232954, lng: 51.366801 }, // старт: ул. Достык
       { lat: 51.232713, lng: 51.361371 },

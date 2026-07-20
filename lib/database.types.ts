@@ -56,6 +56,9 @@ export interface Database {
           id: string;
           truck_id: string | null;
           status: RouteStatus;
+          origin_point_id: string | null;
+          destination_point_id: string | null;
+          cargo_type: string | null;
           started_at: string;
           ended_at: string | null;
         };
@@ -63,6 +66,9 @@ export interface Database {
           id?: string;
           truck_id?: string | null;
           status?: RouteStatus;
+          origin_point_id?: string | null;
+          destination_point_id?: string | null;
+          cargo_type?: string | null;
           started_at?: string;
           ended_at?: string | null;
         };
@@ -70,6 +76,9 @@ export interface Database {
           id?: string;
           truck_id?: string | null;
           status?: RouteStatus;
+          origin_point_id?: string | null;
+          destination_point_id?: string | null;
+          cargo_type?: string | null;
           started_at?: string;
           ended_at?: string | null;
         };
@@ -78,6 +87,18 @@ export interface Database {
             foreignKeyName: "routes_truck_id_fkey";
             columns: ["truck_id"];
             referencedRelation: "trucks";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "routes_origin_point_id_fkey";
+            columns: ["origin_point_id"];
+            referencedRelation: "collection_points";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "routes_destination_point_id_fkey";
+            columns: ["destination_point_id"];
+            referencedRelation: "collection_points";
             referencedColumns: ["id"];
           },
         ];
