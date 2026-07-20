@@ -20,9 +20,19 @@ create table if not exists routes (
   id uuid primary key default gen_random_uuid(),
   truck_id uuid references trucks(id),
   status text check (status in ('in_progress', 'at_sorting', 'recycled')) default 'in_progress',
+  origin_point_id uuid references collection_points(id),
+  destination_point_id uuid references collection_points(id),
+  cargo_type text default 'Смешанные ТБО',
   started_at timestamptz default now(),
   ended_at timestamptz
 );
+
+-- Migration for projects created before origin/destination/cargo were added:
+-- `create table if not exists` above is a no-op once the table exists, so the
+-- new columns have to be added explicitly.
+alter table routes add column if not exists origin_point_id uuid references collection_points(id);
+alter table routes add column if not exists destination_point_id uuid references collection_points(id);
+alter table routes add column if not exists cargo_type text default 'Смешанные ТБО';
 
 create table if not exists route_points (
   id uuid primary key default gen_random_uuid(),
