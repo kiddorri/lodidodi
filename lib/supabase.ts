@@ -34,6 +34,16 @@ export async function getCollectionPoints() {
   return data;
 }
 
+export async function getWasteItems() {
+  const { data, error } = await supabase
+    .from("waste_items")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
 export async function createWasteItem(
   item: Database["public"]["Tables"]["waste_items"]["Insert"],
 ) {
