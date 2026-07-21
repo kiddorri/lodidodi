@@ -16,6 +16,77 @@ type DbRoute = Database["public"]["Tables"]["routes"]["Row"];
 type RoutePointRow = Database["public"]["Tables"]["route_points"]["Row"];
 type RouteStatus = Database["public"]["Tables"]["routes"]["Row"]["status"];
 
+// The confirm button + its little form, split out so RoutePanel only has to
+// track "what is this route's status", not also "is the form open / typing /
+// saving". Owns its own state; tells the parent the result via onConfirm.
+function ConfirmRecyclingButton({
+  onConfirm,
+}: {
+  onConfirm: (note: string) => Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [note, setNote] = useState("Принято на переработку");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit() {
+    setBusy(true);
+    setError(null);
+    try {
+      await onConfirm(note.trim() || "Принято на переработку");
+      setOpen(false);
+    } catch {
+      setError("Не удалось подтвердить. Проверьте соединение и повторите.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="rounded-md bg-peach px-3 py-1.5 text-xs font-medium text-ivory hover:opacity-90"
+      >
+        Подтвердить переработку
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <input
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        placeholder="Доказательство (вес, № весовой…)"
+        className="rounded-md border border-bistre/40 bg-ivory px-2 py-1 text-xs text-codium"
+      />
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={submit}
+          disabled={busy}
+          className="rounded-md bg-peach px-3 py-1.5 text-xs font-medium text-ivory disabled:opacity-50"
+        >
+          {busy ? "…" : "Подтвердить"}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(false);
+            setError(null);
+          }}
+          className="rounded-md bg-bistre/20 px-3 py-1.5 text-xs text-codium"
+        >
+          Отмена
+        </button>
+      </div>
+      {error && <p className="text-xs text-peach">{error}</p>}
+    </div>
+  );
+}
+
 interface Props {
   route: MockRoute;
   collectionPoints: CollectionPoint[];
@@ -38,10 +109,6 @@ export default function RoutePanel({
   const [confirmationNote, setConfirmationNote] = useState<string | null>(
     initialRoute?.confirmation_note ?? null,
   );
-  const [confirming, setConfirming] = useState(false);
-  const [note, setNote] = useState("Принято на переработку");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [passportOpen, setPassportOpen] = useState(false);
   const [live, setLive] = useState(false);
 
@@ -88,23 +155,11 @@ export default function RoutePanel({
       ? routeTrail.map((p) => ({ lat: p.lat, lng: p.lng, ts: p.ts }))
       : route.points.map((p) => ({ lat: p.lat, lng: p.lng, ts: null }));
 
-  async function handleConfirm() {
-    setBusy(true);
-    setError(null);
-    try {
-      const updated = await confirmRouteRecycled(
-        route.routeId,
-        note.trim() || "Принято на переработку",
-      );
-      setStatus(updated.status);
-      setConfirmedAt(updated.confirmed_at);
-      setConfirmationNote(updated.confirmation_note);
-      setConfirming(false);
-    } catch {
-      setError("Не удалось подтвердить. Проверьте соединение и повторите.");
-    } finally {
-      setBusy(false);
-    }
+  async function handleConfirm(note: string) {
+    const updated = await confirmRouteRecycled(route.routeId, note);
+    setStatus(updated.status);
+    setConfirmedAt(updated.confirmed_at);
+    setConfirmationNote(updated.confirmation_note);
   }
 
   return (
@@ -154,45 +209,7 @@ export default function RoutePanel({
 
       {status !== "recycled" && (
         <div className="mt-3">
-          {!confirming ? (
-            <button
-              type="button"
-              onClick={() => setConfirming(true)}
-              className="rounded-md bg-peach px-3 py-1.5 text-xs font-medium text-ivory hover:opacity-90"
-            >
-              Подтвердить переработку
-            </button>
-          ) : (
-            <div className="flex flex-col gap-2">
-              <input
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Доказательство (вес, № весовой…)"
-                className="rounded-md border border-bistre/40 bg-ivory px-2 py-1 text-xs text-codium"
-              />
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={handleConfirm}
-                  disabled={busy}
-                  className="rounded-md bg-peach px-3 py-1.5 text-xs font-medium text-ivory disabled:opacity-50"
-                >
-                  {busy ? "…" : "Подтвердить"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setConfirming(false);
-                    setError(null);
-                  }}
-                  className="rounded-md bg-bistre/20 px-3 py-1.5 text-xs text-codium"
-                >
-                  Отмена
-                </button>
-              </div>
-              {error && <p className="text-xs text-peach">{error}</p>}
-            </div>
-          )}
+          <ConfirmRecyclingButton onConfirm={handleConfirm} />
         </div>
       )}
 
