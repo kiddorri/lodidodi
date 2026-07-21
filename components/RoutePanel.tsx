@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Database } from "@/lib/database.types";
 import {
   STATUS_COLORS,
   STATUS_LABELS,
   type MockRoute,
 } from "@/lib/mockRoutes";
-import { confirmRouteRecycled } from "@/lib/supabase";
+import { confirmRouteRecycled, supabase } from "@/lib/supabase";
 import { formatTime } from "@/lib/format";
 import RoutePassport, { type TrailPoint } from "./RoutePassport";
 
@@ -43,6 +43,36 @@ export default function RoutePanel({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [passportOpen, setPassportOpen] = useState(false);
+  const [live, setLive] = useState(false);
+
+  // Subscribe to this route's row: status/confirmation changes (from the
+  // operator here or elsewhere) push in over Supabase Realtime and update the
+  // card and passport with no page reload. The same channel will carry live
+  // GPS once route_points streaming is wired up.
+  useEffect(() => {
+    const channel = supabase
+      .channel(`route-${route.routeId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "routes",
+          filter: `id=eq.${route.routeId}`,
+        },
+        (payload) => {
+          const r = payload.new as DbRoute;
+          setStatus(r.status);
+          setConfirmedAt(r.confirmed_at);
+          setConfirmationNote(r.confirmation_note);
+        },
+      )
+      .subscribe((s) => setLive(s === "SUBSCRIBED"));
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [route.routeId]);
 
   const origin = collectionPoints.find((p) => p.id === route.originPointId);
   const originName = origin?.name ?? route.originName;
@@ -79,7 +109,18 @@ export default function RoutePanel({
 
   return (
     <li className="rounded-lg bg-ivory p-3">
-      <p className="font-medium text-codium">{route.truckPlate}</p>
+      <div className="flex items-start justify-between">
+        <p className="font-medium text-codium">{route.truckPlate}</p>
+        {live && (
+          <span
+            className="flex items-center gap-1 text-[10px] font-medium text-bistre"
+            title="Обновляется в реальном времени"
+          >
+            <span className="h-2 w-2 animate-pulse rounded-full bg-peach" />
+            онлайн
+          </span>
+        )}
+      </div>
       <p className="text-sm text-bistre">{route.driverName}</p>
       <span
         className="mt-2 inline-block rounded-full px-3 py-1 text-xs font-medium text-ivory"
