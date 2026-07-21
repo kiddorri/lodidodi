@@ -16,8 +16,8 @@ export default function Nav() {
   return (
     <nav className="bg-codium text-ivory">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-lg font-semibold tracking-tight">
-          WasteFlow
+        <Link href="/" className="text-xl font-bold tracking-tight">
+          Loom
         </Link>
         <div className="flex gap-2">
           {links.map((link) => {
