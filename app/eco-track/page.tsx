@@ -1,21 +1,25 @@
-import { getCollectionPoints } from "@/lib/supabase";
+import { getCollectionPoints, getRouteById } from "@/lib/supabase";
 import EcoTrackView from "@/components/EcoTrackView";
+import { mockRoutes } from "@/lib/mockRoutes";
 import type { Database } from "@/lib/database.types";
 
 type CollectionPoint = Database["public"]["Tables"]["collection_points"]["Row"];
+type DbRoute = Database["public"]["Tables"]["routes"]["Row"];
 
 export const dynamic = "force-dynamic";
 
 export default async function EcoTrackPage() {
   let collectionPoints: CollectionPoint[] = [];
+  let initialRoute: DbRoute | null = null;
   let loadError: string | null = null;
 
   try {
     collectionPoints = (await getCollectionPoints()) ?? [];
+    initialRoute = await getRouteById(mockRoutes[0].routeId);
   } catch (error) {
-    console.error("Failed to load collection points", error);
+    console.error("Failed to load EcoTrack data", error);
     loadError =
-      "Не удалось загрузить точки сдачи из базы данных. На карте показан только маршрут.";
+      "Не удалось загрузить данные из базы. Показан маршрут по последним известным данным.";
   }
 
   return (
@@ -28,7 +32,11 @@ export default async function EcoTrackPage() {
         </p>
       </div>
 
-      <EcoTrackView collectionPoints={collectionPoints} loadError={loadError} />
+      <EcoTrackView
+        collectionPoints={collectionPoints}
+        initialRoute={initialRoute}
+        loadError={loadError}
+      />
     </div>
   );
 }

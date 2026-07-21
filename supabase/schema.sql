@@ -23,16 +23,24 @@ create table if not exists routes (
   origin_point_id uuid references collection_points(id),
   destination_point_id uuid references collection_points(id),
   cargo_type text default 'Смешанные ТБО',
+  -- Recycling confirmation: an explicit "proof" step for the recycled status,
+  -- not just an enum flip. confirmed_at is the timestamp the operator signed
+  -- off; confirmation_note carries the proof detail (accepted weight, scale
+  -- ticket number, etc.).
+  confirmed_at timestamptz,
+  confirmation_note text,
   started_at timestamptz default now(),
   ended_at timestamptz
 );
 
--- Migration for projects created before origin/destination/cargo were added:
+-- Migration for projects created before these columns were added:
 -- `create table if not exists` above is a no-op once the table exists, so the
 -- new columns have to be added explicitly.
 alter table routes add column if not exists origin_point_id uuid references collection_points(id);
 alter table routes add column if not exists destination_point_id uuid references collection_points(id);
 alter table routes add column if not exists cargo_type text default 'Смешанные ТБО';
+alter table routes add column if not exists confirmed_at timestamptz;
+alter table routes add column if not exists confirmation_note text;
 
 create table if not exists route_points (
   id uuid primary key default gen_random_uuid(),
