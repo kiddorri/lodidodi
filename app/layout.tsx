@@ -3,8 +3,9 @@ import "./globals.css";
 import Nav from "@/components/Nav";
 
 export const metadata: Metadata = {
-  title: "WasteFlow",
-  description: "Цифровая платформа управления отходами",
+  title: "Loom — прозрачное управление отходами",
+  description:
+    "Loom делает путь мусора видимым: ИИ-сортировка и живой трекинг вывоза для Уральска",
 };
 
 export default function RootLayout({

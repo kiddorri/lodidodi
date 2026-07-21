@@ -59,6 +59,8 @@ export interface Database {
           origin_point_id: string | null;
           destination_point_id: string | null;
           cargo_type: string | null;
+          confirmed_at: string | null;
+          confirmation_note: string | null;
           started_at: string;
           ended_at: string | null;
         };
@@ -69,6 +71,8 @@ export interface Database {
           origin_point_id?: string | null;
           destination_point_id?: string | null;
           cargo_type?: string | null;
+          confirmed_at?: string | null;
+          confirmation_note?: string | null;
           started_at?: string;
           ended_at?: string | null;
         };
@@ -79,6 +83,8 @@ export interface Database {
           origin_point_id?: string | null;
           destination_point_id?: string | null;
           cargo_type?: string | null;
+          confirmed_at?: string | null;
+          confirmation_note?: string | null;
           started_at?: string;
           ended_at?: string | null;
         };

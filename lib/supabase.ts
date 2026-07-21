@@ -16,12 +16,41 @@ export async function getRoutes() {
   return data;
 }
 
+export async function getRouteById(routeId: string) {
+  const { data, error } = await supabase
+    .from("routes")
+    .select("*")
+    .eq("id", routeId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
 export async function getRoutePoints(routeId: string) {
   const { data, error } = await supabase
     .from("route_points")
     .select("*")
     .eq("route_id", routeId)
     .order("ts", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+// Operator action: confirm the load was recycled. Flips status to 'recycled'
+// and records the proof (timestamp + note) rather than just changing the enum.
+export async function confirmRouteRecycled(routeId: string, note: string) {
+  const { data, error } = await supabase
+    .from("routes")
+    .update({
+      status: "recycled",
+      confirmed_at: new Date().toISOString(),
+      confirmation_note: note,
+    })
+    .eq("id", routeId)
+    .select()
+    .single();
 
   if (error) throw error;
   return data;

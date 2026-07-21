@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getWasteItems } from "@/lib/supabase";
+import { estimateAvoidedCO2 } from "@/lib/co2";
 import AnalyticsChart, {
   type CategorySlice,
 } from "@/components/AnalyticsChart";
@@ -55,6 +56,8 @@ export default async function AnalyticsPage() {
         )
       : null;
 
+  const avoidedCO2 = estimateAvoidedCO2(items);
+
   const categoryData = groupByCategory(items);
 
   return (
@@ -87,7 +90,7 @@ export default async function AnalyticsPage() {
 
       {!loadError && total > 0 && (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <StatCard
               label="Всего проанализировано"
               value={`${total} предметов`}
@@ -96,6 +99,10 @@ export default async function AnalyticsPage() {
             <StatCard
               label="Средняя уверенность ИИ"
               value={avgConfidencePct !== null ? `${avgConfidencePct}%` : "—"}
+            />
+            <StatCard
+              label="Избежано CO₂"
+              value={`${avoidedCO2.toFixed(2)} кг`}
             />
           </div>
 
