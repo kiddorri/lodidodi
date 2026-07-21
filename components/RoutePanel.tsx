@@ -8,28 +8,26 @@ import {
   type MockRoute,
 } from "@/lib/mockRoutes";
 import { confirmRouteRecycled } from "@/lib/supabase";
+import { formatTime } from "@/lib/format";
+import RoutePassport, { type TrailPoint } from "./RoutePassport";
 
 type CollectionPoint = Database["public"]["Tables"]["collection_points"]["Row"];
 type DbRoute = Database["public"]["Tables"]["routes"]["Row"];
+type RoutePointRow = Database["public"]["Tables"]["route_points"]["Row"];
 type RouteStatus = Database["public"]["Tables"]["routes"]["Row"]["status"];
-
-// HH:MM from an ISO timestamp, without a timezone lib — the wall-clock as stored.
-function formatTime(iso: string | null): string {
-  if (!iso) return "—";
-  const m = iso.match(/T(\d{2}:\d{2})/);
-  return m ? m[1] : "—";
-}
 
 interface Props {
   route: MockRoute;
   collectionPoints: CollectionPoint[];
   initialRoute: DbRoute | null;
+  routeTrail: RoutePointRow[];
 }
 
 export default function RoutePanel({
   route,
   collectionPoints,
   initialRoute,
+  routeTrail,
 }: Props) {
   const [status, setStatus] = useState<RouteStatus>(
     initialRoute?.status ?? route.status,
@@ -44,9 +42,21 @@ export default function RoutePanel({
   const [note, setNote] = useState("Принято на переработку");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [passportOpen, setPassportOpen] = useState(false);
 
   const origin = collectionPoints.find((p) => p.id === route.originPointId);
   const originName = origin?.name ?? route.originName;
+  const destination = collectionPoints.find(
+    (p) => p.id === route.destinationPointId,
+  );
+  const destinationName = destination?.name ?? route.destinationName;
+
+  // Prefer the real GPS trail from route_points; fall back to the mock
+  // geometry (no timestamps) when the DB has none yet.
+  const trail: TrailPoint[] =
+    routeTrail.length > 0
+      ? routeTrail.map((p) => ({ lat: p.lat, lng: p.lng, ts: p.ts }))
+      : route.points.map((p) => ({ lat: p.lat, lng: p.lng, ts: null }));
 
   async function handleConfirm() {
     setBusy(true);
@@ -143,6 +153,29 @@ export default function RoutePanel({
             </div>
           )}
         </div>
+      )}
+
+      <button
+        type="button"
+        onClick={() => setPassportOpen(true)}
+        className="mt-3 text-xs font-medium text-bistre underline hover:text-codium"
+      >
+        Цифровой паспорт →
+      </button>
+
+      {passportOpen && (
+        <RoutePassport
+          truckPlate={route.truckPlate}
+          cargoType={route.cargoType}
+          originName={originName}
+          destinationName={destinationName}
+          startedAt={route.startedAt}
+          status={status}
+          confirmedAt={confirmedAt}
+          confirmationNote={confirmationNote}
+          trail={trail}
+          onClose={() => setPassportOpen(false)}
+        />
       )}
     </li>
   );

@@ -7,6 +7,7 @@ import RoutePanel from "./RoutePanel";
 
 type CollectionPoint = Database["public"]["Tables"]["collection_points"]["Row"];
 type DbRoute = Database["public"]["Tables"]["routes"]["Row"];
+type RoutePointRow = Database["public"]["Tables"]["route_points"]["Row"];
 
 const EcoTrackMap = dynamic(() => import("./EcoTrackMap"), {
   ssr: false,
@@ -20,12 +21,14 @@ const EcoTrackMap = dynamic(() => import("./EcoTrackMap"), {
 interface Props {
   collectionPoints: CollectionPoint[];
   initialRoute: DbRoute | null;
+  routeTrail: RoutePointRow[];
   loadError: string | null;
 }
 
 export default function EcoTrackView({
   collectionPoints,
   initialRoute,
+  routeTrail,
   loadError,
 }: Props) {
   const route = mockRoutes[0];
@@ -51,6 +54,7 @@ export default function EcoTrackView({
               route={route}
               collectionPoints={collectionPoints}
               initialRoute={initialRoute}
+              routeTrail={routeTrail}
             />
           </ul>
         </aside>
